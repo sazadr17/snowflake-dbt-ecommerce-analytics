@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: One row per order with totals calculated from line items.
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: order_total
+        description: Sum of line totals in INR.
+
+  - name: dim_customers
+    description: One row per customer with lifetime metrics and a value segment.
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+      - name: customer_segment
+        tests:
+          - accepted_values:
+              values: ['high_value', 'medium_value', 'low_value', 'no_purchases']
+
+  - name: mart_daily_revenue
+    description: Revenue and average order value per day (completed orders only).
+    columns:
+      - name: order_date
+        tests: [unique, not_null]
